@@ -1,0 +1,54 @@
+# 编译产物
+*.o
+*.out
+a.out
+*.exe
+*.elf
+*.bin
+*.ko
+*.mod.c
+*.symvers
+*.order
+
+# 可执行文件（无后缀，常见于 Linux）
+main
+mplayer
+media_player
+disbmp
+discount
+cir_and_juxing
+touch
+uart
+disbmp
+
+# 编译目录
+build/
+obj/
+Debug/
+Release/
+
+# 媒体文件（过大，不适合版本管理）
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.bmp
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.wav
+*.mp3
+
+# IDE / 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# 操作系统
+Thumbs.db
+.DS_Store
+Desktop.ini
