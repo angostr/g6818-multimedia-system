@@ -1,7 +1,7 @@
 #ifndef __UART_H__
 #define __UART_H__
 
-void init_tty(int fd);
+int  init_tty(int fd);
 
 void get_lux(void);
 void get_tem_humidity_pressure(void);

@@ -30,7 +30,7 @@ extern int height;
 static void run_photo_album(void)
 {
     char *pathname[] = {"./12.bmp", "./lb.bmp", "./13.bmp", "./14.bmp"};
-    elec_photo_album(pathname);
+    photo_album(pathname);
 }
 
 /* ── 传感器数据展示 ──────────────────────────── */
@@ -83,7 +83,10 @@ static void run_sensor_with_alert(void)
 /* ── main ──────────────────────────────────────── */
 int main(void)
 {
-    lcd__init__();
+    if (lcd_init() != 0) {
+        fprintf(stderr, "LCD init failed, exit\n");
+        return 1;
+    }
 
     switch (FEATURE_MODE) {
     case 0:  video_player();         break;

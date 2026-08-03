@@ -43,24 +43,20 @@
 ## 目录结构
 
 ```
-g6818-multimedia-system/
+embedded-multimedia-system/
 ├── README.md                 # 项目说明
 ├── Makefile                  # 交叉编译脚本
 ├── .gitignore                # Git 忽略规则
 ├── src/                      # 主项目源码
-│   ├── main.c                # 入口（FEATURE_MODE 宏切换功能模块）
+│   ├── main.c                # 入口（FEATURE_MODE 宏 / make 变量切换功能模块）
 │   ├── lcd.c / lcd.h         # LCD Framebuffer 驱动 + Alpha 混合
 │   ├── touch.c / touch.h     # 触摸屏驱动 + 手势方向检测
 │   ├── bmp.c / bmp.h         # BMP 图片解码与显示
 │   ├── mplayer.c / mplayer.h # 视频播放器（MPlayer 从模式封装）
 │   ├── uart.c / uart.h       # UART 串口 + GY39 传感器 + LED/蜂鸣器
 │   ├── icon.h                # 播放器 UI 图标字模（32×32）
-│   ├── num.h                 # 大号数字字模（32×64）
-│   └── tphlhum.h             # 中文汉字字模（温度/湿度/气压/光强/℃/Pa/%）
-├── player/                   # 独立视频播放器（键盘控制版）
-│   ├── mplayer.c
-│   └── Makefile
-├── demos/                    # 学习阶段练习代码（8 个独立程序）
+│   └── num.h                 # 数字字模（16×24）
+├── demos/                    # 学习阶段练习代码（独立程序，仅供参考）
 │   └── README.md
 └── docs/
     └── mplayer-notes.md      # MPlayer 使用笔记
@@ -99,6 +95,9 @@ make CC=gcc check
 #define FEATURE_MODE  0   /* 改为 0~3 切换功能 */
 ```
 
+> 也可在编译时通过 `make FEATURE_MODE=1` 传入，Makefile 会以 `-DFEATURE_MODE=1` 注入（无需改代码）。
+
+
 ### 编译独立播放器
 
 ```bash
@@ -118,13 +117,26 @@ make clean
 - GY39 传感器模块连接至 UART1（`/dev/ttySAC1`）
 - 需要 `/dev/fb0`、`/dev/input/event0` 设备节点
 
-## 已知问题
+## 优化记录
 
-1. **硬编码资源路径**：视频文件列表（`mplayer.c`）和相册图片路径（`main.c` 中 `run_photo_album`）写死在代码中
-2. **拼音命名**：部分函数 / 变量使用拼音（`disbmp`、`get_dir_cao`、`laizi` 等），不影响功能但可读性不佳
-3. **LED_ctrl 资源泄漏**：每次调用都 open/close，高频调用时效率较低
-4. **`lcd_draw_circle` 性能**：全屏遍历 800×480 像素绘制圆，可用 Bresenham 算法优化
-5. **`mplayer.h` 中 `send_command` 未导出**：已改为 `static`，仅供 `mplayer.c` 内部使用
+### v1.2（结构 / 健壮性 / 效率）
+
+- **清理死代码**：移除从未被引用的 `tphlhum.h`（中文字模）与功能重复且 `main()` 被注释导致「启动即退出」的 `player/` 目录。
+- **命名规范**：`lcd__init__()` → `lcd_init()`（去除双下划线保留字风格）；删除从未被读写的死全局 `paused`。
+- **错误处理**：`lcd_init` 增加 `mmap`/`malloc` 失败检查并返回错误码（`main` 据此退出）；`bmp_display` 校验 `read`/`malloc` 返回值与 BMP 深度/尺寸；`uart` 串口读取校验返回字节数后再解析帧；`mplayer` 增加 `pipe`/`epoll_create1`/`open` 失败处理。
+- **效率**：`LED_ctrl` 由每次 `open/write/close` 改为 **fd 缓存**复用；`lcd_draw_circle` 由全屏 800×480 遍历收敛到圆的外接矩形。
+- **手势判定修复**：原 `mplayer` 在滑动时调用 `get_swipe_direction()` 会重新 `open` 触摸设备并**阻塞读取下一次手势**才判定方向（方向滞后一拍）；现改为在同一手势内依据起点/终点坐标即时判定，并让 `get_swipe_direction(int fd)` 复用调用方已打开的 fd，消除重复 `open` 导致的事件分流。
+- **构建修复**：`make FEATURE_MODE=N` 此前因 Makefile 未注入 `-DFEATURE_MODE` 而失效，现已生效；移除对 `player/` 的构建依赖。
+
+### 待优化（后续可继续）
+
+1. **硬编码资源路径**：视频列表（`mplayer.c` 的 `videopath`）与相册图片路径（`main.c` 的 `run_photo_album`）写死在代码中，建议改为命令行参数或配置文件读取。
+2. **编译期功能切换**：`FEATURE_MODE` 仍为编译宏，建议改为运行时菜单 / 参数选择，单个二进制支持全部功能。
+3. **`lcd_draw_circle` 算法**：可进一步用中点画圆（Bresenham）替代逐像素距离判断。
+4. **`num.h` 字模尺寸**：声明为 `numinfo[][32*64/8]`，但实际数据为 16×24；建议统一为 `numinfo[][16*24/8]` 并由 `lcd_draw_num` 的 `w/h` 参数驱动，避免误导。
+5. **传感器轮询**：`main.c` 中 `sleep(1)` 轮询传感器，高频场景可改为线程 + 条件变量或 inotify/select。
+6. **手势宏命名**：`UP/DOWN/LEFT/RIGHT/FLAG` 为通用名，建议加前缀（如 `GESTURE_*`）避免与其他头文件冲突。
+7. **演示资源缺失**：`1e.mp4` 等视频与 `12.bmp` 等图片未纳入仓库，建议补充 `assets/` 样例或 `.gitignore` 说明。
 
 > 注：v1.1 已修复的 Bug → `uart.c` 中 `LED_ID = 10`（赋值误写为比较）、`mplayer.h` 中 `static` 变量在头文件定义导致的多副本风险。
 

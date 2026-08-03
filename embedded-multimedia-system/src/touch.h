@@ -8,14 +8,13 @@
 #define RIGHT 4
 #define FLAG  5    /* 中心按钮点击 */
 
-/* 触摸手势检测 */
-int  get_dir_cao(void);
-int  get_dir(void);             /* get_dir_cao 的兼容别名 */
+/* 触摸手势检测（传入已打开的触摸设备 fd） */
+int  get_swipe_direction(int tc_fd);
 
 /* 按钮区域判断 */
 int  isbutton(int x, int y, int button_x, int button_y, int r);
 
 /* 电子相册（触摸翻页浏览） */
-void elec_photo_album(char *pathname[]);
+void photo_album(char *pathname[]);
 
 #endif

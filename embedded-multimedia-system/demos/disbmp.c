@@ -53,18 +53,18 @@ int main()
     int line_valid_bytes;//每一行的有效字节数
     int line_bytes;//每一行的实际字节数 = 有效字节数 + 赖子数
     int total_bytes;//整个总字节数
-    int laizi = 0;//每一行需要填充的字节数
-            
+    int row_padding = 0;//每一行需要填充的字节数
+
             //求每一行的有效字节数
     line_valid_bytes = abs(width)*(depth/8);
-            
+
             //判断有效字节数是否为4的整数倍
     if(line_valid_bytes % 4)
     {
-        laizi = 4 - line_valid_bytes%4;
+        row_padding = 4 - line_valid_bytes%4;
     }
             // 每一行的实际字节数
-    line_bytes = line_valid_bytes + laizi;
+    line_bytes = line_valid_bytes + row_padding;
             
             //像素数组的总字节数
     total_bytes = line_bytes * abs(height);
@@ -102,7 +102,7 @@ int main()
             lcd_draw_point(width>0? x:abs(width)-1-x,height>0? 
 abs(height)-1-y:y,color);
         }
-        i += laizi;//跳过每一行最后面的赖子数
+        i += row_padding;//跳过每一行最后面的填充字节
     }
     free(piexls);
     munmap(plcd,800*480*4);

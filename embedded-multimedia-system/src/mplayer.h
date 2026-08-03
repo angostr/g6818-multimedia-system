@@ -1,7 +1,6 @@
 #ifndef __MPLAYER_H__
 #define __MPLAYER_H__
 
-extern int paused;           // 0=播放  1=暂停
 extern int playback_ended;   // 1=视频已播完
 
 // 视频列表及索引
