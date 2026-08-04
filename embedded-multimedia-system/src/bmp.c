@@ -97,6 +97,7 @@ void bmp_display(int x0, int y0, char *path)
         i += row_padding;  /* 跳过行末填充字节 */
     }
 
+    lcd_flush();        /* 将后备缓冲区刷到 framebuffer，使图片可见 */
     free(pixels);
 }
 
@@ -109,8 +110,9 @@ void bmp_display(int x0, int y0, char *path)
 void bmp_slideshow(int x, int y, char *path[], int num, int color)
 {
     for (int i = 0; i < num; i++) {
-        bmp_display(0, 0, path[i]);
+        bmp_display(0, 0, path[i]);   /* 内部已 lcd_flush */
         sleep(2);
         lcd_clear(color);
+        lcd_flush();                  /* 清屏生效 */
     }
 }

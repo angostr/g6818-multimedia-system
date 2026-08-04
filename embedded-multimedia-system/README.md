@@ -98,12 +98,6 @@ make CC=gcc check
 > 也可在编译时通过 `make FEATURE_MODE=1` 传入，Makefile 会以 `-DFEATURE_MODE=1` 注入（无需改代码）。
 
 
-### 编译独立播放器
-
-```bash
-make player
-```
-
 ### 清理
 
 ```bash

@@ -47,6 +47,7 @@ static void run_sensor_display(void)
         lcd_draw_num(0,  48, 16, 24, 0x000000, pressure);
         lcd_draw_num(0,  72, 16, 24, 0x000000, height);
         lcd_draw_num(0,  96, 16, 24, 0x000000, lux);
+        lcd_flush();
         sleep(1);
     }
 }
@@ -76,6 +77,7 @@ static void run_sensor_with_alert(void)
         lcd_draw_num(100,  64, 32, 64, 0x000000, pressure);
         lcd_draw_num(100, 128, 32, 64, 0x000000, humidity);
         lcd_draw_num(100, 192, 32, 64, 0x000000, lux);
+        lcd_flush();
         sleep(1);
     }
 }

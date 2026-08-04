@@ -96,13 +96,15 @@ void photo_album(char *pathname[])
 
     while (1) {
         lcd_draw_circle(400, 240, 50, 0x000000);
+        lcd_flush();                  /* 等待手势期间显示指示圆 */
         result = get_swipe_direction(tc_fd);
         lcd_clear(0xff0000);
+        lcd_flush();                  /* 清屏生效 */
 
         if (result == UP || result == LEFT) {
             sum--;
             if (sum == -1) sum = num - 1;
-            bmp_display(400, 0, pathname[sum]);
+            bmp_display(400, 0, pathname[sum]);   /* 内部已 lcd_flush */
         }
         if (result == DOWN || result == RIGHT) {
             sum++;
