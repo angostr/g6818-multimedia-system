@@ -5,11 +5,6 @@ CC          ?= arm-linux-gnueabihf-gcc
 CFLAGS      ?= -Wall -O2
 LDFLAGS     ?= -lpthread
 
-# 功能模式：0=播放器 1=相册 2=传感器 3=传感器+告警
-# 也可在 src/main.c 中修改 FEATURE_MODE 宏固定
-FEATURE_MODE ?= 0
-CFLAGS      += -DFEATURE_MODE=$(FEATURE_MODE)
-
 SRC_DIR  = src
 TARGET   = multimedia_system
 
@@ -43,9 +38,7 @@ help:
 	@echo "Variables:"
 	@echo "  CC            — 编译器 (default: arm-linux-gnueabihf-gcc)"
 	@echo "  CFLAGS        — 编译选项 (default: -Wall -O2)"
-	@echo "  FEATURE_MODE  — 功能模式 0~3 (default: 0)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make                      # ARM 交叉编译（播放器模式）"
+	@echo "  make                      # ARM 交叉编译"
 	@echo "  make CC=gcc check         # 本地语法检查"
-	@echo "  make FEATURE_MODE=1       # 编译相册模式"

@@ -89,6 +89,11 @@ void quit_mplayer(void)
         waitpid(mplayer_pid, NULL, 0);
         mplayer_pid = -1;
     }
+    /* 释放管道 FILE*，避免多次切换视频时 FILE* 句柄泄漏 */
+    if (mplayer_stdin) {
+        fclose(mplayer_stdin);
+        mplayer_stdin = NULL;
+    }
 }
 
 /* ── 命令发送（管道 → MPlayer slave）──────────── */
@@ -249,10 +254,12 @@ void video_player(void)
                                 if (touch.y < 440) {
                                     shadow = 0;
                                     if (touch.x < 36 && touch.y < 50) {
+                                        /* 返回主菜单：仅清理本模式资源，保留 lcd 供菜单复用 */
+                                        g_request_menu = 1;
                                         quit_mplayer();
+                                        signal(SIGCHLD, SIG_DFL);
                                         close(tc_fd); close(epfd);
                                         close(sig_pipe[0]); close(sig_pipe[1]);
-                                        lcd_close();
                                         return;
                                     }
                                 } else if (touch.x >= 0   && touch.x < 50)  seek_forward(10);
@@ -270,8 +277,9 @@ void video_player(void)
                             }
                         } else {                           /* 滑动：同一次手势内直接判定方向 */
                             if (dx > dy) {
-                                if (cur_raw_x > start_x) switch_to_prev_video();
-                                else                     switch_to_next_video();
+                                /* 与电子相册统一：右滑=下一视频，左滑=上一视频 */
+                                if (cur_raw_x > start_x) switch_to_next_video();
+                                else                     switch_to_prev_video();
                             } else {
                                 if (cur_raw_y > start_y) set_volume(-5);
                                 else                     set_volume(5);
