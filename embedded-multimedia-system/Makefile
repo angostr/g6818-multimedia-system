@@ -1,4 +1,4 @@
-# G6818 嵌入式多媒体系统 — Makefile
+# GE6818 嵌入式多媒体系统 — Makefile
 # 默认 ARM 交叉编译，可通过 make CC=gcc 在 x86 上做语法检查
 
 CC          ?= arm-linux-gnueabihf-gcc

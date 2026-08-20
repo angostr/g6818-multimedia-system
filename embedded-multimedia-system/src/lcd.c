@@ -1,5 +1,5 @@
 /**
- * LCD 显示驱动 — G6818 Framebuffer 底层操作
+ * LCD 显示驱动 — GE6818 Framebuffer 底层操作
  *
  * 分辨率: 800 × 480, 32-bit (ARGB)
  * 设备节点: /dev/fb0

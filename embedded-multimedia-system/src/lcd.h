@@ -1,7 +1,7 @@
 #ifndef __LCD_H__
 #define __LCD_H__
 
-/* 屏幕分辨率（G6818 LCD: 800×480, 32-bit ARGB） */
+/* 屏幕分辨率（GE6818 LCD: 800×480, 32-bit ARGB） */
 #define LCD_WIDTH   800
 #define LCD_HEIGHT  480
 
